@@ -1,5 +1,6 @@
 # Ecommercery
 
+
 A full-stack fashion e-commerce application built with Next.js 13 (App Router). It has two sides in one codebase: a customer-facing storefront (browse products, manage a cart, save addresses, pay with Stripe, track orders) and an admin panel (add, update, and delete products, manage incoming orders). The frontend and the backend API both live inside the same Next.js project; there is no separate backend server.
 
 This document explains what the project does, how it is put together at a high level, how each individual piece works at a low level, and gives a complete reference for every API endpoint with a working curl example.
@@ -30,6 +31,10 @@ Data is stored in MongoDB (users, products, cart items, addresses, orders). Prod
 | Notifications | `react-toastify` |
 
 ## 3. High-Level Design
+
+![Ecommercery Architecture](public/architecture.png)
+
+*High-level architecture of the Ecommercery application.*
 
 At a high level, the system has four participants: the browser, the Next.js server (which serves both pages and API routes), MongoDB, and two external services (Supabase Storage and Stripe).
 
