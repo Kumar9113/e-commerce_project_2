@@ -25,25 +25,30 @@ export default function Cart() {
     if (res.success) {
       const updatedData =
         res.data && res.data.length
-          ? res.data.map((item) => ({
-            ...item,
-            productID: {
-              ...item.productID,
-              price:
-                item.productID.onSale === "yes"
-                  ? parseInt(
-                    (
-                      item.productID.price -
-                      item.productID.price * (item.productID.priceDrop / 100)
-                    ).toFixed(2)
-                  )
-                  : item.productID.price,
-            },
-          }))
+          ? res.data
+              .filter((item) => item.productID) // drop orphaned cart items (product deleted / not populated)
+              .map((item) => ({
+                ...item,
+                productID: {
+                  ...item.productID,
+                  price:
+                    item.productID.onSale === "yes"
+                      ? parseInt(
+                        (
+                          item.productID.price -
+                          item.productID.price *
+                            (item.productID.priceDrop / 100)
+                        ).toFixed(2)
+                      )
+                      : item.productID.price,
+                },
+              }))
           : [];
       setCartItems(updatedData);
       setPageLevelLoader(false);
       localStorage.setItem("cartItems", JSON.stringify(updatedData));
+    } else {
+      setPageLevelLoader(false); // don't leave the loader spinning forever on failure
     }
 
     console.log(res);
@@ -92,6 +97,4 @@ export default function Cart() {
       cartItems={cartItems}
     />
   );
-
-
 }

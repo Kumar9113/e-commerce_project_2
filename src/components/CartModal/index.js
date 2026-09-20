@@ -27,21 +27,24 @@ export default function CartModal() {
     if (res?.success) {
       const updatedData =
         res.data && res.data.length
-          ? res.data.map((item) => ({
-            ...item,
-            productID: {
-              ...item.productID,
-              price:
-                item.productID.onSale === "yes"
-                  ? parseInt(
-                    (
-                      item.productID.price -
-                      item.productID.price * (item.productID.priceDrop / 100)
-                    ).toFixed(2)
-                  )
-                  : item.productID.price,
-            },
-          }))
+          ? res.data
+              .filter((item) => item.productID) // drop orphaned cart items (product deleted / not populated)
+              .map((item) => ({
+                ...item,
+                productID: {
+                  ...item.productID,
+                  price:
+                    item.productID.onSale === "yes"
+                      ? parseInt(
+                        (
+                          item.productID.price -
+                          item.productID.price *
+                            (item.productID.priceDrop / 100)
+                        ).toFixed(2)
+                      )
+                      : item.productID.price,
+                },
+              }))
           : [];
       setCartItems(updatedData);
       localStorage.setItem("cartItems", JSON.stringify(updatedData));
@@ -82,14 +85,10 @@ export default function CartModal() {
         cartItems && cartItems.length ? (
           <ul role="list" className="-my-6 divide-y divide-gray-300">
             {cartItems.map((cartItem) => (
-              <li key={cartItem.id} className="flex py-6">
+              <li key={cartItem._id} className="flex py-6">
                 <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-brand-light">
                   <img
-                    src={
-                      cartItem &&
-                      cartItem.productID &&
-                      cartItem.productID.imageUrl
-                    }
+                    src={cartItem?.productID?.imageUrl}
                     alt="Cart Item"
                     className="h-full w-full object-cover object-center"
                   />
@@ -98,18 +97,11 @@ export default function CartModal() {
                   <div>
                     <div className="flex justify-between text-base font-medium text-ink">
                       <h3>
-                        <a>
-                          {cartItem &&
-                            cartItem.productID &&
-                            cartItem.productID.name}
-                        </a>
+                        <a>{cartItem?.productID?.name}</a>
                       </h3>
                     </div>
                     <p className="mt-1 text-sm text-muted">
-                      ₹
-                      {cartItem &&
-                        cartItem.productID &&
-                        cartItem.productID.price}
+                      ₹{cartItem?.productID?.price}
                     </p>
                   </div>
                   <div className="flex flex-1 items-end justify-between text-sm">
@@ -119,8 +111,8 @@ export default function CartModal() {
                       onClick={() => handleDeleteCartItem(cartItem._id)}
                     >
                       {componentLevelLoader &&
-                        componentLevelLoader.loading &&
-                        componentLevelLoader.id === cartItem._id ? (
+                      componentLevelLoader.loading &&
+                      componentLevelLoader.id === cartItem._id ? (
                         <ComponentLevelLoader
                           text={"Removing"}
                           color={"#000000"}
